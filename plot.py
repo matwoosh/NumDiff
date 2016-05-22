@@ -1,13 +1,14 @@
-import numpy as np
 import matplotlib.pyplot as plt
 
 
 class Plot:
-    def __init__(self, function, arguments):
-        self.function = function
+    def __init__(self, arguments, function):
         self.arguments = arguments
+        self.function = function
 
     def plot_function(self, canvas):
+        plt.clf()
+        canvas.draw()
         x = self.arguments
         y = self.function
         plt.xlabel('x')
