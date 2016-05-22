@@ -49,6 +49,7 @@ class Window(QtGui.QDialog):
         data = functions[index]
         p = Plot(data[1], data[2])
         p.plot_function(self.canvas)
+        p.plot_derivative(self.canvas)
 
     def init_combo(self):
         for x in functions:
