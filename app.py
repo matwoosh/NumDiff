@@ -1,4 +1,6 @@
 import sys
+from pygsl import deriv
+
 from PyQt4 import QtGui
 from PyQt4.QtCore import pyqtSlot, Qt
 
@@ -14,6 +16,16 @@ class Window(QtGui.QDialog):
 
     def __init__(self, parent=None):
         super(Window, self).__init__(parent)
+        self.argument = 1
+        self.lbl1 = QtGui.QLabel("Function")
+        self.lbl2 = QtGui.QLabel("\nFunction argument:")
+        self.lbl3 = QtGui.QLabel("\nFunction value:")
+        self.lbl4 = QtGui.QLabel("\nDerivative value:")
+        self.lbl5 = QtGui.QLabel("\nError:")
+        self.error = QtGui.QLabel("-")
+        self.value = QtGui.QLabel("-")
+        self.derivative = QtGui.QLabel("-")
+        self.edit = QtGui.QLineEdit()
         self.figure = plt.figure()  # a figure instance to plot on
         self.canvas = FigureCanvas(self.figure)
         self.combo = QtGui.QComboBox()
@@ -22,13 +34,23 @@ class Window(QtGui.QDialog):
 
     def init_ui(self):
         self.init_combo()
+        self.edit.textChanged[str].connect(self.change_argument)
 
         layout = QtGui.QVBoxLayout(self)
         left = QtGui.QFrame()
         left.setFrameShape(QtGui.QFrame.StyledPanel)
 
         splitter1 = QtGui.QSplitter(Qt.Vertical)
+        splitter1.addWidget(self.lbl1)
         splitter1.addWidget(self.combo)
+        splitter1.addWidget(self.lbl2)
+        splitter1.addWidget(self.edit)
+        splitter1.addWidget(self.lbl3)
+        splitter1.addWidget(self.value)
+        splitter1.addWidget(self.lbl4)
+        splitter1.addWidget(self.derivative)
+        splitter1.addWidget(self.lbl5)
+        splitter1.addWidget(self.error)
         splitter1.addWidget(left)
 
         splitter0 = QtGui.QSplitter(Qt.Horizontal)
@@ -56,6 +78,17 @@ class Window(QtGui.QDialog):
             self.combo.addItem(x[0])
         self.combo.currentIndexChanged.connect(self.plot)
 
+    def change_argument(self, text):
+        try:
+            self.argument = float(text)
+            function_data = functions[self.combo.currentIndex()]
+            value = function_data[1](self.argument, 0)
+            derivative_result = deriv.central(function_data[1], self.argument, 1)
+            self.value.setText(str(value))
+            self.derivative.setText(str(derivative_result[0]))
+            self.error.setText(str(derivative_result[1]))
+        except:
+            print("Wrong input")
 
 if __name__ == "__main__":
     app = QtGui.QApplication(sys.argv)
