@@ -8,7 +8,7 @@ from matplotlib.backends.backend_qt4agg import FigureCanvasQTAgg as FigureCanvas
 from matplotlib.backends.backend_qt4agg import NavigationToolbar2QTAgg as NavigationToolbar
 import matplotlib.pyplot as plt
 
-from data import functions
+from data import functions, DerivativeType
 from plot import Plot
 
 
@@ -17,11 +17,14 @@ class Window(QtGui.QDialog):
     def __init__(self, parent=None):
         super(Window, self).__init__(parent)
         self.argument = 1
+        self.deriv_type = DerivativeType.central
         self.lbl1 = QtGui.QLabel("Function")
-        self.lbl2 = QtGui.QLabel("\nFunction argument:")
-        self.lbl3 = QtGui.QLabel("\nFunction value:")
-        self.lbl4 = QtGui.QLabel("\nDerivative value:")
-        self.lbl5 = QtGui.QLabel("\nError:")
+        self.lbl2 = QtGui.QLabel("\nDifferentiation function type:")
+        self.lbl3 = QtGui.QLabel("\nFunction argument:")
+        self.lbl4 = QtGui.QLabel("\nFunction value:")
+        self.lbl5 = QtGui.QLabel("\nDerivative value:")
+        self.lbl6 = QtGui.QLabel("\nError:")
+        self.radio_widget = QtGui.QWidget(self)
         self.error = QtGui.QLabel("-")
         self.value = QtGui.QLabel("-")
         self.derivative = QtGui.QLabel("-")
@@ -34,6 +37,7 @@ class Window(QtGui.QDialog):
 
     def init_ui(self):
         self.init_combo()
+        self.init_radio()
         self.edit.textChanged[str].connect(self.change_argument)
 
         layout = QtGui.QVBoxLayout(self)
@@ -44,12 +48,16 @@ class Window(QtGui.QDialog):
         splitter1.addWidget(self.lbl1)
         splitter1.addWidget(self.combo)
         splitter1.addWidget(self.lbl2)
-        splitter1.addWidget(self.edit)
+        splitter1.addWidget(self.r0)
+        splitter1.addWidget(self.r1)
+        splitter1.addWidget(self.r2)
         splitter1.addWidget(self.lbl3)
-        splitter1.addWidget(self.value)
+        splitter1.addWidget(self.edit)
         splitter1.addWidget(self.lbl4)
-        splitter1.addWidget(self.derivative)
+        splitter1.addWidget(self.value)
         splitter1.addWidget(self.lbl5)
+        splitter1.addWidget(self.derivative)
+        splitter1.addWidget(self.lbl6)
         splitter1.addWidget(self.error)
         # splitter1.addWidget(left)
 
@@ -69,7 +77,7 @@ class Window(QtGui.QDialog):
 
     def plot(self, index):
         data = functions[index]
-        p = Plot(data[1], data[2])
+        p = Plot(data[1], data[2], self.deriv_type)
         p.plot_function(self.canvas)
         p.plot_derivative(self.canvas)
 
@@ -77,6 +85,20 @@ class Window(QtGui.QDialog):
         for x in functions:
             self.combo.addItem(x[0])
         self.combo.currentIndexChanged.connect(self.plot)
+
+    def init_radio(self):
+        radio_group = QtGui.QButtonGroup(self.radio_widget)
+        self.r0 = QtGui.QRadioButton("central")
+        self.r1 = QtGui.QRadioButton("backward")
+        self.r2 = QtGui.QRadioButton("forward")
+
+        radio_group.addButton(self.r0)
+        radio_group.addButton(self.r1)
+        radio_group.addButton(self.r2)
+
+        self.r0.toggled.connect(self.choose_diff_type)
+        self.r1.toggled.connect(self.choose_diff_type)
+        self.r2.toggled.connect(self.choose_diff_type)
 
     def change_argument(self, text):
         try:
@@ -89,6 +111,17 @@ class Window(QtGui.QDialog):
             self.error.setText(str(derivative_result[1]))
         except:
             print("Wrong input")
+
+    def choose_diff_type(self):
+        if self.r0.isChecked():
+            self.deriv_type = DerivativeType.central
+        elif self.r1.isChecked():
+            self.deriv_type = DerivativeType.backward
+        elif self.r2.isChecked():
+            self.deriv_type = DerivativeType.forward
+        else:
+            print("Fatal error occured!")
+        self.plot(self.combo.currentIndex())
 
 if __name__ == "__main__":
     app = QtGui.QApplication(sys.argv)
