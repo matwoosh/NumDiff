@@ -37,8 +37,8 @@ class Window(QtGui.QDialog):
         self.edit.textChanged[str].connect(self.change_argument)
 
         layout = QtGui.QVBoxLayout(self)
-        left = QtGui.QFrame()
-        left.setFrameShape(QtGui.QFrame.StyledPanel)
+        # left = QtGui.QFrame()
+        # left.setFrameShape(QtGui.QFrame.StyledPanel)
 
         splitter1 = QtGui.QSplitter(Qt.Vertical)
         splitter1.addWidget(self.lbl1)
@@ -51,7 +51,7 @@ class Window(QtGui.QDialog):
         splitter1.addWidget(self.derivative)
         splitter1.addWidget(self.lbl5)
         splitter1.addWidget(self.error)
-        splitter1.addWidget(left)
+        # splitter1.addWidget(left)
 
         splitter0 = QtGui.QSplitter(Qt.Horizontal)
         splitter0.addWidget(splitter1)
